@@ -1,0 +1,10 @@
+{
+    "name": "uart",
+    "targets": {
+        "rtl": {
+            "libraryMapping": {
+                "": "work"
+            }
+        }
+    }
+}

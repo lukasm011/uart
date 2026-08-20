@@ -1,0 +1,16 @@
+v 4
+file "/home/lukas/digital/uart/uart/" "tb/uart_tx_tb.vhd" "6f76aa63b6f51f5b2c662eb8c4c51a7a70ffeaab" "20260820185139.830":
+  entity uart_tx_tb at 1( 0) + 0 on 19;
+  architecture tx_test of uart_tx_tb at 8( 108) + 0 on 20;
+file "/home/lukas/digital/uart/uart/" "src/uart_tx.vhd" "cce4d9e509f8df2e1d34089c3df5f3364e3e5298" "20260820185139.830":
+  entity uart_tx at 1( 0) + 0 on 17;
+  architecture synth of uart_tx at 17( 378) + 0 on 18;
+file "/home/lukas/digital/uart/uart/" "src/uart_rx.vhd" "e11b87f7b04581f239676f2caa405478414b5f8a" "20260820185139.829":
+  entity uart_rx at 1( 0) + 0 on 15;
+  architecture synth of uart_rx at 17( 377) + 0 on 16;
+file "/home/lukas/digital/uart/uart/" "src/uart_pkg.vhd" "40b09285b1ea99f5c8192726a017b9db1c45f3af" "20260820185139.828":
+  package uart_pkg at 1( 0) + 0 on 13 body;
+  package body uart_pkg at 16( 499) + 0 on 14;
+file "/home/lukas/digital/uart/uart/" "src/reg.vhd" "931d01678c5ed92a7c583c60504f0cbb5bcedf9c" "20260820185139.828":
+  entity reg at 1( 0) + 0 on 11;
+  architecture synth of reg at 13( 279) + 0 on 12;

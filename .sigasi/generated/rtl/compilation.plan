@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "compilationGroups": [
+    {
+      "language": "VHDL",
+      "library": "work",
+      "resources": [
+        {
+          "path": "/home/lukas/digital/uart/uart/src/reg.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/src/uart_pkg.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/src/uart_rx.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/src/uart_top.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/src/uart_tx.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/tb/uart_rx_tb.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
+          "path": "/home/lukas/digital/uart/uart/tb/uart_tx_tb.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        }
+      ],
+      "overrideDirectives": {},
+      "undefineMacroNames": [],
+      "includePaths": [],
+      "includeFallbackToLocalDirectory": false,
+      "additionalEnvironmentVariables": {},
+      "libraryResourcesConfig": null,
+      "currentWorkingDirectory": "/home/lukas/digital/uart/uart",
+      "inferOrder": true,
+      "inferLibrary": false,
+      "allowUndefineInitialDefine": false,
+      "allowUndefineAllInitialDefine": false,
+      "conditionalVariables": {},
+      "target": {
+        "project": "uart",
+        "version": "default",
+        "target": "rtl"
+      },
+      "shouldBeValidated": true
+    }
+  ]
+}
