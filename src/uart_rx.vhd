@@ -5,7 +5,7 @@ use work.uart_pkg.all;
 
 entity uart_rx is
     generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8);
-    port(d_in : in std_logic;
+    port(d_in_rx : in std_logic;
     rst : in std_logic;
     clk : in std_logic;
     sel : in std_logic;
@@ -24,9 +24,10 @@ architecture synth of uart_rx is
     signal state, next_state : rx_state_type := IDLE;
     signal counter, next_counter : UNSIGNED(counter_width-1 downto 0);
     signal bit_counter, next_bit_counter : UNSIGNED(bit_counter_width-1 downto 0);
-    signal d_in_last, error_sig, next_error : std_logic;
+    signal d_in_last, error_sig, next_error, d_in : std_logic;
     signal buf, next_buf : std_logic_vector(WIDTH-1 downto 0);
-
+    signal d_in_sync : std_logic_vector(1 downto 0);
+    signal d_in_filter : unsigned(1 downto 0);
     begin
         next_state_logic:process(all) begin 
             if(rst = '0') then
@@ -145,4 +146,24 @@ architecture synth of uart_rx is
             end if;
             error_out <= error_sig;
         end process;
+
+    synchronizer:process(clk) begin
+        if(rising_edge(clk)) then
+            --default value
+            if(rst = '0') then
+                d_in_filter <= (others => '1');
+                d_in_sync <= (others => '1');
+                d_in <= '1';
+            else
+                d_in_sync(1) <= d_in_sync(0);
+                d_in_sync(0) <= d_in_rx;
+                if(d_in_sync(1) = '1' and d_in_filter < 3) then
+                    d_in_filter <= d_in_filter + 1;
+                elsif(d_in_sync(1) = '0' and d_in_filter > 0) then
+                    d_in_filter <= d_in_filter - 1;
+                end if;
+                d_in <= '1' when d_in_filter = 3 else '0' when d_in_filter = 0 else d_in;
+            end if;
+        end if;
+    end process;
     end architecture;

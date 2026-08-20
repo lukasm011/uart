@@ -30,7 +30,7 @@ architecture tx_test of uart_tx_tb is
                 width => 8
             )
             port map(
-                d_in  => d_out,
+                d_in_rx  => d_out,
                 rst   => rst,
                 clk   => clk,
                 sel => sel,
