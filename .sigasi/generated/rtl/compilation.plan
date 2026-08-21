@@ -36,6 +36,11 @@
           "kind": "COMPILE_FILE"
         },
         {
+          "path": "/home/lukas/digital/uart/uart/tb/uart_top_tb.vhd",
+          "hdlVersion": "VHDL 2019",
+          "kind": "COMPILE_FILE"
+        },
+        {
           "path": "/home/lukas/digital/uart/uart/tb/uart_tx_tb.vhd",
           "hdlVersion": "VHDL 2019",
           "kind": "COMPILE_FILE"

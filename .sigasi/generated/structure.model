@@ -17,6 +17,7 @@
           "platform:/resource/uart/Targets/rtl/work/uart_top.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_tx.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_rx_tb.vhd",
+          "platform:/resource/uart/Targets/rtl/work/uart_top_tb.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_tx_tb.vhd"
         ],
         "includePaths": [],
@@ -104,6 +105,18 @@
         }
       },
       "platform:/resource/uart/Targets/rtl/work/uart_rx_tb.vhd": {
+        "root": {
+          "project": "uart",
+          "version": "default",
+          "target": "rtl"
+        },
+        "actual": {
+          "project": "uart",
+          "version": "default",
+          "target": "rtl"
+        }
+      },
+      "platform:/resource/uart/Targets/rtl/work/uart_top_tb.vhd": {
         "root": {
           "project": "uart",
           "version": "default",
@@ -206,6 +219,11 @@
       "type": 1
     },
     {
+      "source": "platform:/resource/uart/Targets/rtl/work/uart_top_tb.vhd",
+      "target": "file:///home/lukas/digital/uart/uart/tb/uart_top_tb.vhd",
+      "type": 1
+    },
+    {
       "source": "platform:/resource/uart/Targets/rtl/work/uart_tx_tb.vhd",
       "target": "file:///home/lukas/digital/uart/uart/tb/uart_tx_tb.vhd",
       "type": 1
@@ -248,6 +266,11 @@
       "isLibraryFile": false
     },
     "platform:/resource/uart/Targets/rtl/work/uart_rx_tb.vhd": {
+      "library": null,
+      "version": "VHDL 2019",
+      "isLibraryFile": false
+    },
+    "platform:/resource/uart/Targets/rtl/work/uart_top_tb.vhd": {
       "library": null,
       "version": "VHDL 2019",
       "isLibraryFile": false
@@ -364,6 +387,11 @@
       {
         "source": "platform:/resource/uart/Targets/rtl/work/uart_rx_tb.vhd",
         "target": "file:///home/lukas/digital/uart/uart/tb/uart_rx_tb.vhd",
+        "type": 1
+      },
+      {
+        "source": "platform:/resource/uart/Targets/rtl/work/uart_top_tb.vhd",
+        "target": "file:///home/lukas/digital/uart/uart/tb/uart_top_tb.vhd",
         "type": 1
       },
       {

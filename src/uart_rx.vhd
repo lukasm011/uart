@@ -9,7 +9,7 @@ entity uart_rx is
     rst : in std_logic;
     clk : in std_logic;
     sel : in std_logic;
-    d_out : out std_logic_vector(7 downto 0);
+    d_out : out std_logic_vector(WIDTH-1 downto 0);
     error_out : out std_logic
     );
 end uart_rx;
@@ -138,7 +138,7 @@ architecture synth of uart_rx is
                         next_counter <= TO_UNSIGNED(0, counter_width);
                         next_bit_counter <= TO_UNSIGNED(0, bit_counter_width);
                         --enable output
-                        d_out <= buf(7 downto 0);
+                        d_out <= buf;
                     else
                         next_counter <= counter + 1;
                     end if;
