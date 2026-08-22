@@ -11,7 +11,6 @@
           "fileUri": "file:///home/lukas/digital/uart/uart/"
         },
         "resources": [
-          "platform:/resource/uart/Targets/rtl/work/reg.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_pkg.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_rx.vhd",
           "platform:/resource/uart/Targets/rtl/work/uart_top.vhd",
@@ -44,18 +43,6 @@
       }
     ],
     "resourceTargetContexts": {
-      "platform:/resource/uart/Targets/rtl/work/reg.vhd": {
-        "root": {
-          "project": "uart",
-          "version": "default",
-          "target": "rtl"
-        },
-        "actual": {
-          "project": "uart",
-          "version": "default",
-          "target": "rtl"
-        }
-      },
       "platform:/resource/uart/Targets/rtl/work/uart_pkg.vhd": {
         "root": {
           "project": "uart",
@@ -189,11 +176,6 @@
       "type": 2
     },
     {
-      "source": "platform:/resource/uart/Targets/rtl/work/reg.vhd",
-      "target": "file:///home/lukas/digital/uart/uart/src/reg.vhd",
-      "type": 1
-    },
-    {
       "source": "platform:/resource/uart/Targets/rtl/work/uart_pkg.vhd",
       "target": "file:///home/lukas/digital/uart/uart/src/uart_pkg.vhd",
       "type": 1
@@ -238,11 +220,6 @@
     "platform:/resource/uart/Targets/rtl/work": {
       "library": "work",
       "version": null,
-      "isLibraryFile": false
-    },
-    "platform:/resource/uart/Targets/rtl/work/reg.vhd": {
-      "library": null,
-      "version": "VHDL 2019",
       "isLibraryFile": false
     },
     "platform:/resource/uart/Targets/rtl/work/uart_pkg.vhd": {
@@ -359,11 +336,6 @@
       }
     ],
     "platform:/resource/uart/Targets/rtl/work": [
-      {
-        "source": "platform:/resource/uart/Targets/rtl/work/reg.vhd",
-        "target": "file:///home/lukas/digital/uart/uart/src/reg.vhd",
-        "type": 1
-      },
       {
         "source": "platform:/resource/uart/Targets/rtl/work/uart_pkg.vhd",
         "target": "file:///home/lukas/digital/uart/uart/src/uart_pkg.vhd",

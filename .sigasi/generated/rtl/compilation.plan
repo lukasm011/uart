@@ -6,11 +6,6 @@
       "library": "work",
       "resources": [
         {
-          "path": "/home/lukas/digital/uart/uart/src/reg.vhd",
-          "hdlVersion": "VHDL 2019",
-          "kind": "COMPILE_FILE"
-        },
-        {
           "path": "/home/lukas/digital/uart/uart/src/uart_pkg.vhd",
           "hdlVersion": "VHDL 2019",
           "kind": "COMPILE_FILE"

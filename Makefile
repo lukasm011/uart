@@ -7,7 +7,7 @@ TBrx = uart_rx_tb
 TBtx = uart_tx_tb
 TBtop = uart_top_tb
 
-SRCS = $(addprefix $(SRC_DIR)/, reg.vhd uart_pkg.vhd uart_rx.vhd uart_tx.vhd uart_top.vhd)
+SRCS = $(addprefix $(SRC_DIR)/, uart_pkg.vhd uart_rx.vhd uart_tx.vhd uart_top.vhd)
 
 final: $(SRCS)
 	ghdl $(VHDLFLAGS) --workdir=$(SIM_DIR) $(SRCS) $(TB_DIR)/$(TBrx).vhd $(TB_DIR)/$(TBtx).vhd $(TB_DIR)/$(TBtop).vhd
