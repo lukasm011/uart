@@ -19,6 +19,7 @@ architecture synth of uart_tx is
     signal CPB, NEXT_CPB : integer;
     signal BAUD_RATE, NEXT_BAUD_RATE : integer;
     constant counter_width : integer := bits(CLK_FREQ/9600 - 1);
+    --worst case is highest oversampling rate with 9600baud
     constant bit_counter_width : integer := bits(WIDTH-1);
     signal state, next_state : tx_state_type := IDLE;
     signal counter, next_counter : unsigned(counter_width-1 downto 0) := (others=>'0');
@@ -107,7 +108,7 @@ architecture synth of uart_tx is
                     when TRANSMISSION =>
                         if(counter = CPB - 1) then
                             --output lowest bit when resuming transmission,
-                            --start stop sequence when end reached
+                            --begin stop sequence when end reached
                             next_d_out <= buf(0) when bit_counter /= WIDTH - 1 else '1';
                             next_buf <= '0' & buf(WIDTH-1 downto 1);
                             next_bit_counter <= bit_counter + 1;
