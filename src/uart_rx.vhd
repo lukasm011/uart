@@ -38,7 +38,7 @@ architecture synth of uart_rx is
             case state is
                 when DETECT_IDLE =>
                     if(d_in = '0' and d_in_last = '1') then
-                        --d_in deasserted
+                        --begin start sequence
                         next_state <= DETECT_START;
                     end if;
                 when DETECT_START =>
@@ -72,8 +72,6 @@ architecture synth of uart_rx is
                     end if;
                 when STOP_BIT =>
                     if(counter = CPB-1) then
-                        --no need for invalid value handling, 
-                        --next state would still be idle
                         next_state <= IDLE;
                     end if;
             end case;

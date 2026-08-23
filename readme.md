@@ -1,5 +1,6 @@
 ## OVERVIEW
-This UART module is able to receive and transmit at 9600baud (slow mode) and 115200baud (fast mode).
+This UART module is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
+Reception is possible at baudrates from 4800baud to 1Mbaud.
 The implementation consists of two subsystems, namely TX and RX.
 
 ![Module block diagram](docs/images/uart_top-blockdiagram.svg)
@@ -13,10 +14,18 @@ one more clock cycle to revert to the idle state, ready to transmit/receive. Thu
 
 If trig is applied during the first clock cycle after asserting rst low, the module will not read the sel input and default to operation in the slow mode at 9600 baud. 
 Selection between the two modes is possible using the sel port.
-Input on sel must be stable at least one cycle before toggling trig or receiving a low input on rx_in.
+Input on sel must be stable at least one cycle before toggling trig.
 The data to be transmitted is passed to the TX-subsystem via the data_in_ser input and the trigger input must be
 asserted high for at least one clock cycle to begin the transmission.
 The data received is written to data_out_ser by the RX-subsystem when the stop bit has been read. The output value is set to 0x00 upon reset. If there has been an error during the reading process, error_out will be toggled for one clock cycle, and the RX-subsystem will return to idle state. The output will not be updated.
+The RX-subsystem uses automatic baud rate detection (autobaud) to determine the baudrate of incoming transmissions.
+Thus, after a reset, a defined sequence must be followed, as outlined below.
+
+## AUTOBAUD OPERATION
+After a reset, the RX-subsytem transitions into the state "DETECT_IDLE".
+![FSM state diagram](docs/images/uart_rx-statemachine.svg)
+
+In this state, the subsystem will wait for the beginning of a transmission of the ASCII character 'U' in order to determine the baud rate. This baud rate will be utilized until the next reset is started. Thus, a reset is necessary to change the baudrate of the receiver. The RX- and TX-subsystem's baud rates are indipendent and do not influence each other.
 
 ## SYNCHRONIZATION AND FILTERING
 
