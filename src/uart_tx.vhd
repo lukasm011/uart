@@ -21,7 +21,7 @@ architecture synth of uart_tx is
     constant counter_width : integer := bits(CLK_FREQ/9600 - 1);
     --worst case is highest oversampling rate with 9600baud
     constant bit_counter_width : integer := bits(WIDTH-1);
-    signal state, next_state : tx_state_type := IDLE;
+    signal state, next_state : tx_state_type;
     signal counter, next_counter : unsigned(counter_width-1 downto 0) := (others=>'0');
     signal bit_counter, next_bit_counter : unsigned(bit_counter_width-1 downto 0);
     signal next_d_out, d_out_sig : std_logic;

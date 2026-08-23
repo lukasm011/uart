@@ -4,24 +4,17 @@ use ieee.numeric_std.all;
 
 --//
 -- MODULE DESCRIPTION
--- This UART subsystem is able to receive and transmit at 9600baud (slow mode) and 115200baud (fast mode).
+-- This UART subsystem is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
 -- Selection between the two modes is possible using the sel port.
+-- It is also able to receive at baudrates ranging from 4800baud to 1Mbaud.
 -- The data to be transmitted is passed to the module via the data_in_ser input and the trigger input must be
 -- switched to high for at least one clock cycle to begin the transmission.
 -- The data received is written to data_out_ser when the stop bit has been read. If there has been an error during
 -- the reading process, error_out will be toggled for one clock cycle, and the rx subsystem will return to idle state.
 -- To prevent noise from starting a transmission or causing an error, the input of the rx subsystem is both synchronized
 -- and filtered. 
+-- Further information provided in readme.
 --//
-
---//
--- APPLICATION NOTES
--- On startup, the reset port must be asserted low for at least one clock cycle.
--- Transmission can be started only after one clock cycle has passed after reset has been asserted high.
--- Input on sel must be stable at least one cycle before toggling trig or receiving a low input on rx_in.
---//
-
-
 
 
 entity uart_top is
@@ -49,7 +42,6 @@ architecture top of uart_top is
                 d_in_rx   => rx_in,
                 rst       => rst,
                 clk       => clk,
-                sel       => sel,
                 d_out     => data_out_ser,
                 error_out => error_out
             );
