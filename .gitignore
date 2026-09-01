@@ -5,4 +5,4 @@ sim/*.vcd
 top/*.json
 top/*.fs
 *.json
-.vscode
+.vscode.sigasi/generated/
