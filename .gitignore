@@ -1,0 +1,8 @@
+*.sigasi
+sim/*.ghw
+sim/*.cf
+sim/*.vcd
+top/*.json
+top/*.fs
+*.json
+.vscode

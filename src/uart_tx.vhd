@@ -16,14 +16,14 @@ end entity;
 
 architecture synth of uart_tx is
     --declarations
-    signal CPB, NEXT_CPB : integer;
-    signal BAUD_RATE, NEXT_BAUD_RATE : integer;
     constant counter_width : integer := bits(CLK_FREQ/9600 - 1);
+    --worst case is highest oversampling rate with 9600baud
+    signal CPB, NEXT_CPB : unsigned(counter_width-1 downto 0);
     constant bit_counter_width : integer := bits(WIDTH-1);
-    signal state, next_state : tx_state_type := IDLE;
+    signal state, next_state : tx_state_type;
     signal counter, next_counter : unsigned(counter_width-1 downto 0) := (others=>'0');
     signal bit_counter, next_bit_counter : unsigned(bit_counter_width-1 downto 0);
-    signal next_d_out, d_out_sig : std_logic;
+    signal next_d_out, d_out_sig, baud_rate, next_baud_rate: std_logic;
     signal buf, next_buf : std_logic_vector(WIDTH-1 downto 0);
     begin
         next_state_proc: process(all) begin
@@ -59,7 +59,7 @@ architecture synth of uart_tx is
                 bit_counter <= next_bit_counter;
                 d_out_sig <= next_d_out;
                 buf <= next_buf;
-                BAUD_RATE <= NEXT_BAUD_RATE;
+                baud_rate <= next_baud_rate;
                 CPB <= NEXT_CPB;
             end if;
             end process;
@@ -73,13 +73,13 @@ architecture synth of uart_tx is
                 --on reset, slow mode (9600baud) is automatically selected
                 --real value will be selected when state becomes idle
                 --//
-                NEXT_BAUD_RATE <= 9600;
-                NEXT_CPB <= CLK_FREQ / 9600;
+                next_baud_rate <= '0';
+                NEXT_CPB <= TO_UNSIGNED(CLK_FREQ/ 9600, counter_width);
             else
             --//
             --default values
             --//
-                NEXT_BAUD_RATE <= BAUD_RATE;
+                next_baud_rate <= baud_rate;
                 NEXT_CPB <= CPB;
                 next_counter <= counter;
                 next_bit_counter <= bit_counter;
@@ -91,9 +91,10 @@ architecture synth of uart_tx is
                             --transmission requested, lock in buffer and cpb
                             next_d_out <= '0';
                             next_buf <= d_in;
-                            NEXT_CPB <= CLK_FREQ / BAUD_RATE;
+                            NEXT_CPB <= TO_UNSIGNED(CLK_FREQ / 115_200, counter_width) when baud_rate = '1' 
+                                        else TO_UNSIGNED(CLK_FREQ / 9600, counter_width);
                         end if;
-                        NEXT_BAUD_RATE <= 115200 when sel = '1' else 9600;
+                        next_baud_rate <= sel;
                     when START_BIT =>
                         if(counter = CPB - 1) then
                             --completed start bit sequence
@@ -107,7 +108,7 @@ architecture synth of uart_tx is
                     when TRANSMISSION =>
                         if(counter = CPB - 1) then
                             --output lowest bit when resuming transmission,
-                            --start stop sequence when end reached
+                            --begin stop sequence when end reached
                             next_d_out <= buf(0) when bit_counter /= WIDTH - 1 else '1';
                             next_buf <= '0' & buf(WIDTH-1 downto 1);
                             next_bit_counter <= bit_counter + 1;

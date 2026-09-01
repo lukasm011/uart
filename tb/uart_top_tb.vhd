@@ -33,14 +33,39 @@ architecture sim of uart_top_tb is
             rst <= '0';
             wait for 6 ns;
             rst <= '1';
-            data_in_ser <= "10101011";
+            data_in_ser <= "01010101";
             wait for 10 ns;
             trig <= '1';
             wait for 10 ns;
             trig <= '0';
+            data_in_ser <= "11101111";
             wait for 100 us;
+            trig <= '1';
+            wait for 10 ns;
+            trig <= '0';
+            wait for 100 us;
+            wait;
         end process;
-        
+        checkproc:process 
+            variable counter : integer := 0;
+        begin
+            wait on data_out_ser;
+            if(rst = '1') then
+                case counter is
+                    when 0 =>
+                        assert data_out_ser = "01010101"
+                            report "Mismatch! Got " & to_string(data_out_ser) & ". Expected 01010101"
+                            severity error;
+                        counter := counter + 1;
+                    when 1 => 
+                        assert data_out_ser = "11101111"
+                            report "Mismatch! Got " & to_string(data_out_ser) & ". Expected 11101111"
+                            severity error;
+                        counter := counter + 1;
+                    when others =>
+                    end case;
+            end if;
+        end process;
 
 
 end;

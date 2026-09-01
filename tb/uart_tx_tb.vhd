@@ -33,7 +33,6 @@ architecture tx_test of uart_tx_tb is
                 d_in_rx  => d_out,
                 rst   => rst,
                 clk   => clk,
-                sel => sel,
                 d_out => res,
                 error_out => error_out
             );
@@ -42,7 +41,7 @@ architecture tx_test of uart_tx_tb is
             mainproc: process begin
                 wait for 6 ns;
                 rst <= '1';
-                d_in <= "11100101";
+                d_in <= "01010101";
                 wait for 10 ns;
                 trig <= '1';
                 wait for 10 ns;
@@ -62,5 +61,14 @@ architecture tx_test of uart_tx_tb is
                 wait for 2 us;
                 wait;
                 end process;
-
+            
+            checkproc:process
+                variable bitcounter : integer := 0;
+            begin
+                wait on d_out;
+                bitcounter := bitcounter + 1;
+                if(d_out = '0' and bitcounter = 0) then
+                    bitcounter := bitcounter + 1;
+                end if;
+            end process;
         end;
