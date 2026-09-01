@@ -61,5 +61,14 @@ architecture tx_test of uart_tx_tb is
                 wait for 2 us;
                 wait;
                 end process;
-
+            
+            checkproc:process
+                variable bitcounter : integer := 0;
+            begin
+                wait on d_out;
+                bitcounter := bitcounter + 1;
+                if(d_out = '0' and bitcounter = 0) then
+                    bitcounter := bitcounter + 1;
+                end if;
+            end process;
         end;

@@ -126,7 +126,7 @@ architecture synth of uart_rx is
                     else
                         next_counter <= counter + 1;
                     end if;
-                when DETECT_DATA => 
+                when DETECT_DATA =>
                     if(counter = CPB / 2 - 1) then
                         --//
                         -- Sample first bit in the middle to be

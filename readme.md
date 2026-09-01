@@ -1,6 +1,6 @@
 ## OVERVIEW
 This UART module is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
-Reception is possible at baudrates from 4800baud to 1Mbaud.
+Reception is possible at baudrates from 4800baud and was tested up to 1Mbaud on the Tang Nano 9K board.
 The implementation consists of two subsystems, namely TX and RX.
 
 ![Module block diagram](docs/images/uart_top-blockdiagram.svg)
@@ -8,8 +8,7 @@ The implementation consists of two subsystems, namely TX and RX.
 Both subsystems are implemented as FSMDs (Finite State Machines with Datapath) largely using a two process design.
 
 ## APPLICATION NOTES
-On startup, the reset port must be asserted low for at least one clock cycle. The module subsequently requires
-one more clock cycle to revert to the idle state, ready to transmit/receive. Thus, transmission and reception can start on the next cycle.
+On startup, the reset port must be asserted low for at least one rising edge of the clock. The module subsequently requires one more clock cycle to revert to the idle state, ready to transmit/receive. Thus, transmission and reception can start on the next cycle.
 ![Reset sequence](docs/images/WaveformReset.png) 
 
 If trig is applied during the first clock cycle after asserting rst low, the module will not read the sel input and default to operation in the slow mode at 9600 baud. 
@@ -30,3 +29,7 @@ In this state, the subsystem will wait for the beginning of a transmission of th
 ## SYNCHRONIZATION AND FILTERING
 
 The rx_in input of the RX-subsystem is used after being routed through a two stage synchronizer and a filter. Filtering is accomplished by using a counter to keep track of the value of the current bit relative to the previous values. The counter is incremented in case of a '1' and decremented in case of a '0'. The maximum value is 3 and a minimum value of 0. Thus, to change a stable value, the opposite must be applied for at least 3 clock cycles in order to toggle the signal. The influence of noise is therefore minimized, preventing false starts or errors.
+
+## HARDWARE IMPLEMENTATION
+
+The module was tested on the Tang Nano 9K using an external seven-segment display. Thus, the received data can be evaluated. The toolchain used is yosys -> nextpnr -> gowin_pack -> openFPGALoader. The top level entity assume the seven segment display is of the common cathode type. The interal (27MHz) clock is utilized.
