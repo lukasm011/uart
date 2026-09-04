@@ -43,7 +43,7 @@ begin
             if(read_i = '1' and empty_out = '0') then
                 --can read
                 d_out <= mem(to_integer(r_addr));
-                count <= count - 1;
+                count <= count - 1 when not write_i;
                 if(r_addr < SLOTS - 1) then
                     r_addr <= r_addr + 1;
                 else
