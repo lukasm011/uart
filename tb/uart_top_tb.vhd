@@ -8,8 +8,8 @@ entity uart_top_tb is
 architecture sim of uart_top_tb is 
     signal rst, sel : std_logic := '1';
     signal data_in_ser, data_out_ser : std_logic_vector(7 downto 0);
-    signal clk, trig : std_logic := '0';
-    signal error_out, tx_out : std_logic;
+    signal clk, trig, read, write : std_logic := '0';
+    signal error_out, tx_out, full_rx_out, full_tx_out, empty : std_logic;
     begin
         dut: entity work.uart_top
             generic map(
@@ -17,16 +17,22 @@ architecture sim of uart_top_tb is
                 WIDTH    => 8
             )
             port map(
-                rx_in        => tx_out,
-                data_in_ser  => data_in_ser,
-                clk          => clk,
-                rst          => rst,
-                sel          => sel,
-                trig         => trig,
-                error_out    => error_out,
-                data_out_ser => data_out_ser,
-                tx_out       => tx_out
+                RX_I         => tx_out,
+                DATA_IN_SER  => DATA_IN_SER,
+                CLK          => CLK,
+                RST          => RST,
+                SEL          => SEL,
+                READ         => READ,
+                WRITE        => WRITE,
+                ERROR_O      => error_out,
+                DATA_OUT_SER => DATA_OUT_SER,
+                TX_O         => tx_out,
+                FULL_RX_O    => full_rx_out,
+                FULL_TX_O    => full_tx_out,
+                EMPTY_RX_O      => empty
             );
+        
+        
         clk <= not clk after 5 ns;
         mainproc:process begin
             wait for 1 ns;
@@ -34,16 +40,20 @@ architecture sim of uart_top_tb is
             wait for 6 ns;
             rst <= '1';
             data_in_ser <= "01010101";
+            write <= '1';
             wait for 10 ns;
-            trig <= '1';
-            wait for 10 ns;
-            trig <= '0';
+            write <= '0';
             data_in_ser <= "11101111";
             wait for 100 us;
-            trig <= '1';
+            read <= '1';
+            write <= '1';
             wait for 10 ns;
-            trig <= '0';
+            read <= '0';
+            write <= '0';
             wait for 100 us;
+            read <= '1';
+            wait for 10 ns;
+            read <= '0';
             wait;
         end process;
         checkproc:process 

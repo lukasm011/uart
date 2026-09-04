@@ -4,12 +4,15 @@ use ieee.numeric_std.all;
 use work.uart_pkg.all;
 
 entity uart_rx is
-    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8);
+    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8; DEPTH : integer := 8);
     port(d_in_rx : in std_logic;
     rst : in std_logic;
     clk : in std_logic;
     d_out : out std_logic_vector(WIDTH-1 downto 0);
-    error_out : out std_logic
+    read : in std_logic;
+    error_out : out std_logic;
+    full_o : out std_logic;
+    empty_o : out std_logic
     );
 end uart_rx;
 
@@ -23,13 +26,31 @@ architecture synth of uart_rx is
     --worst case is largest oversampling rate with rate of 4800baud
     constant bit_counter_width : integer := bits(WIDTH);
     signal state, next_state : rx_state_type;
+    signal write : std_logic;
     signal counter, next_counter : UNSIGNED(counter_width-1 downto 0);
     signal bit_counter, next_bit_counter : UNSIGNED(bit_counter_width-1 downto 0);
     signal d_in_last, error_sig, next_error, d_in : std_logic;
-    signal buf, next_buf, next_d_out, d_out_sig : std_logic_vector(WIDTH-1 downto 0);
+    signal buf, next_buf : std_logic_vector(WIDTH-1 downto 0);
     signal d_in_sync : std_logic_vector(1 downto 0);
     signal d_in_filter : unsigned(1 downto 0);
     begin
+        fifo_rx : entity work.fifo
+            generic map(
+                SLOTS => DEPTH,
+                WIDTH => WIDTH
+            )
+            port map(
+                clk     => clk,
+                rst     => rst,
+                read_i  => read,
+                write_i => write,
+                d_in    => buf,
+                d_out   => d_out,
+                full_o  => full_o,
+                empty_o => empty_o
+            );
+        
+
         next_state_logic:process(all) begin 
             if(rst = '0') then
                 next_state <= DETECT_IDLE;
@@ -87,7 +108,6 @@ architecture synth of uart_rx is
                 buf <= next_buf;
                 CPB <= NEXT_CPB;
                 error_sig <= next_error;
-                d_out_sig <= next_d_out;
             end if;
         end process;
         
@@ -99,9 +119,9 @@ architecture synth of uart_rx is
                 next_counter <= (next_counter'range => '0');
                 next_bit_counter <= (next_bit_counter'range => '0');
                 next_buf <= (next_buf'range => '0');
-                next_d_out <= (d_out'range => '0');
                 next_error <= '0';
                 NEXT_CPB <= to_unsigned(0, counter_width);
+                write <= '0';
             else
             --//
             --default values
@@ -111,7 +131,7 @@ architecture synth of uart_rx is
             next_bit_counter <= bit_counter;
             next_buf <= buf;
             next_error <= error_sig;
-            next_d_out <= d_out_sig;
+            write <= '0';
             case state is
                 when DETECT_IDLE =>
                 when DETECT_START =>
@@ -168,7 +188,7 @@ architecture synth of uart_rx is
                         next_bit_counter <= TO_UNSIGNED(0, bit_counter_width);
                         if(d_in = '1') then
                             --change output
-                            next_d_out <= buf;
+                            write <= '1';
                         else
                             --invalid value during stop sequence
                             next_error <= '1';
@@ -179,7 +199,6 @@ architecture synth of uart_rx is
             end case;
             end if;
             error_out <= error_sig;
-            d_out <= d_out_sig;
         end process;
     --//
     -- Synchronization and filtering:

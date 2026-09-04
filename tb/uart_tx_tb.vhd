@@ -7,35 +7,41 @@ entity uart_tx_tb is
 
 architecture tx_test of uart_tx_tb is
     signal d_in, res : std_logic_vector(7 downto 0);
-    signal rst, clk, trig: std_logic := '0';
+    signal rst, clk, trig, read, write, full_o_rx, empty_o_rx, full_o_tx: std_logic := '0';
     signal sel : std_logic := '1';
     signal d_out, error_out : std_logic; 
     begin
         dut: entity work.uart_tx
             generic map(
-                CLK_FREQ   => 100e6,
-                width => 8
+                CLK_FREQ => 100e6,
+                WIDTH    => 8
             )
             port map(
-                d_in  => d_in,
-                rst   => rst,
-                clk   => clk,
-                sel => sel,
-                trig  => trig,
-                d_out => d_out
+                d_i     => d_in,
+                rst     => rst,
+                clk     => clk,
+                sel_i   => sel,
+                write_i => write,
+                full_o  => full_o_tx,
+                d_o     => d_out
             );
+        
         dut2: entity work.uart_rx
             generic map(
-                CLK_FREQ  => 100e6,
-                width => 8
+                CLK_FREQ => 100e6,
+                WIDTH    => 8
             )
             port map(
-                d_in_rx  => d_out,
-                rst   => rst,
-                clk   => clk,
-                d_out => res,
-                error_out => error_out
+                d_in_rx   => d_out,
+                rst       => rst,
+                clk       => clk,
+                d_out     => res,
+                read      => read,
+                error_out => error_out,
+                full_o    => full_o_rx,
+                empty_o   => empty_o_rx
             );
+        
         
             clk <= not clk after 5 ns;
             mainproc: process begin
@@ -43,21 +49,25 @@ architecture tx_test of uart_tx_tb is
                 rst <= '1';
                 d_in <= "01010101";
                 wait for 10 ns;
-                trig <= '1';
+                write <= '1';
                 wait for 10 ns;
-                trig <= '0';
+                write <= '0';
                 wait for 100 us;
+                read <= '1';
                 d_in <= "10000101";
                 wait for 5 ns;
-                trig <= '1';
+                write <= '1';
                 wait for 5 ns;
-                trig <= '0';
+                write <= '0';
+                read <= '0';
                 wait for 100 us;
+                read <= '1';
                 d_in <= "11111101";
                 wait for 5 ns;
-                trig <= '1';
+                write <= '1';
                 wait for 5 ns;
-                trig <= '0';
+                write <= '0';
+                read <= '0';
                 wait for 2 us;
                 wait;
                 end process;
