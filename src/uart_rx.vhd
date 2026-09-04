@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.uart_pkg.all;
 
 entity uart_rx is
-    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8);
+    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8; DEPTH : integer := 8);
     port(d_in_rx : in std_logic;
     rst : in std_logic;
     clk : in std_logic;
@@ -36,7 +36,7 @@ architecture synth of uart_rx is
     begin
         fifo_rx : entity work.fifo
             generic map(
-                SLOTS => 8,
+                SLOTS => DEPTH,
                 WIDTH => WIDTH
             )
             port map(

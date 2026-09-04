@@ -4,13 +4,14 @@ use ieee.numeric_std.all;
 use work.uart_pkg.all;
 
 entity uart_tx is
-    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8);
-    port(d_in : in std_logic_vector(WIDTH - 1 downto 0);
+    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8; DEPTH : integer := 8);
+    port(d_i : in std_logic_vector(WIDTH - 1 downto 0);
     rst : in std_logic;
     clk : in std_logic;
-    sel : in std_logic;
-    trig : in std_logic;
-    d_out : out std_logic
+    sel_i : in std_logic;
+    write_i : in std_logic;
+    full_o : out std_logic; 
+    d_o : out std_logic
     );
 end entity;
 
@@ -23,14 +24,31 @@ architecture synth of uart_tx is
     signal state, next_state : tx_state_type;
     signal counter, next_counter : unsigned(counter_width-1 downto 0) := (others=>'0');
     signal bit_counter, next_bit_counter : unsigned(bit_counter_width-1 downto 0);
-    signal next_d_out, d_out_sig, baud_rate, next_baud_rate: std_logic;
-    signal buf, next_buf : std_logic_vector(WIDTH-1 downto 0);
+    signal next_d_out, d_out_sig, baud_rate, next_baud_rate, read, empty: std_logic;
+    signal buf, next_buf, d_out : std_logic_vector(WIDTH-1 downto 0);
     begin
+        fifo_tx:entity work.fifo
+            generic map(
+                SLOTS => DEPTH,
+                WIDTH => WIDTH
+            )
+            port map(
+                clk     => clk,
+                rst     => rst,
+                read_i  => read,
+                write_i => write_i,
+                d_in    => d_i,
+                d_out   => d_out,
+                full_o  => full_o,
+                empty_o => empty
+            );
+        
+
         next_state_proc: process(all) begin
             next_state <= state;
             case state is
                 when IDLE =>
-                    if(trig = '1') then
+                    if(empty = '0') then
                         --transmission requested
                         next_state <= START_BIT;
                     end if;
@@ -85,25 +103,27 @@ architecture synth of uart_tx is
                 next_bit_counter <= bit_counter;
                 next_buf <= buf;
                 next_d_out <= d_out_sig;
+                read <= '0';
                 case state is
                     when IDLE =>
-                        if(trig = '1') then
+                        if(empty = '0') then
                             --transmission requested, lock in buffer and cpb
                             next_d_out <= '0';
-                            next_buf <= d_in;
+                            read <= '1';
                             NEXT_CPB <= TO_UNSIGNED(CLK_FREQ / 115_200, counter_width) when baud_rate = '1' 
                                         else TO_UNSIGNED(CLK_FREQ / 9600, counter_width);
                         end if;
-                        next_baud_rate <= sel;
+                        next_baud_rate <= sel_i;
                     when START_BIT =>
-                        if(counter = CPB - 1) then
+                        next_counter <= counter + 1;
+                        if(counter = 0) then
+                            next_buf <= d_out;
+                        elsif(counter = CPB - 1) then
                             --completed start bit sequence
                             next_counter <= TO_UNSIGNED(0, counter_width);
                             --output lowest bit and shift right
                             next_d_out <= buf(0);
                             next_buf <= '0' & buf(WIDTH-1 downto 1);
-                        else
-                            next_counter <= counter + 1;
                         end if;
                     when TRANSMISSION =>
                         if(counter = CPB - 1) then
@@ -125,6 +145,6 @@ architecture synth of uart_tx is
                         end if;
                 end case;
             end if;
-            d_out <= d_out_sig;
+            d_o <= d_out_sig;
         end process;
 end architecture;

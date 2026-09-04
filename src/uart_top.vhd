@@ -7,7 +7,7 @@ use ieee.numeric_std.all;
 -- This UART subsystem is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
 -- Selection between the two modes is possible using the sel port.
 -- It is also able to receive at baudrates ranging from 4800baud to 1Mbaud.
--- The data to be transmitted is passed to the module via the data_in_ser input and the trigger input must be
+-- The data to be transmitted is passed to the module via the DATA_IN_SER input and the trigger input must be
 -- switched to high for at least one clock cycle to begin the transmission.
 -- The data received is written to data_out_ser when the stop bit has been read. If there has been an error during
 -- the reading process, error_out will be toggled for one clock cycle, and the rx subsystem will return to idle state.
@@ -18,16 +18,20 @@ use ieee.numeric_std.all;
 
 
 entity uart_top is
-    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8);
-    port(rx_in: in  std_logic;
-    data_in_ser: in std_logic_vector(WIDTH-1 downto 0);
-    clk: in std_logic;
-    rst: in std_logic;
-    sel: in std_logic;
-    trig: in std_logic;
-    error_out: out std_logic;
-    data_out_ser: out std_logic_vector(WIDTH-1 downto 0);
-    tx_out: out std_logic
+    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8; DEPTH : integer := 8);
+    port(RX_I: in  std_logic;
+    DATA_IN_SER: in std_logic_vector(WIDTH-1 downto 0);
+    CLK: in std_logic;
+    RST: in std_logic;
+    SEL: in std_logic;
+    READ: in std_logic;
+    WRITE: in std_logic;
+    ERROR_O: out std_logic;
+    DATA_OUT_SER: out std_logic_vector(WIDTH-1 downto 0);
+    TX_O: out std_logic;
+    FULL_RX_O: out std_logic;
+    FULL_TX_O: out std_logic;
+    EMPTY_RX_O: out std_logic
     );
 end entity;
 
@@ -36,26 +40,34 @@ architecture top of uart_top is
         rx : entity work.uart_rx
             generic map(
                 CLK_FREQ => CLK_FREQ,
-                WIDTH    => WIDTH
+                WIDTH    => WIDTH,
+                DEPTH => DEPTH
             )
             port map(
-                d_in_rx   => rx_in,
+                d_in_rx   => RX_I,
                 rst       => rst,
-                clk       => clk,
+                clk       => CLK,
                 d_out     => data_out_ser,
-                error_out => error_out
+                read      => read,
+                error_out => error_o,
+                full_o    => FULL_RX_O,
+                empty_o   => EMPTY_RX_O
             );
+        
         tx: entity work.uart_tx
             generic map(
                 CLK_FREQ => CLK_FREQ,
-                WIDTH    => WIDTH
+                WIDTH    => WIDTH,
+                DEPTH => DEPTH
             )
             port map(
-                d_in  => data_in_ser,
-                rst   => rst,
-                clk   => clk,
-                sel   => sel,
-                trig  => trig,
-                d_out => tx_out
-            );        
+                d_i     => DATA_IN_SER,
+                rst     => rst,
+                CLK     => CLK,
+                sel_i   => sel,
+                write_i => write,
+                full_o  => FULL_TX_O,
+                d_o     => TX_O
+            );
+            
 end;

@@ -8,7 +8,7 @@ TBrx = uart_rx_tb
 TBtx = uart_tx_tb
 TBtop = uart_top_tb
 
-SRCS = $(addprefix $(SRC_DIR)/, uart_pkg.vhd fifo.vhd uart_rx.vhd uart_tx.vhd) #RETURN uart_top here
+SRCS = $(addprefix $(SRC_DIR)/, uart_pkg.vhd fifo.vhd uart_rx.vhd uart_tx.vhd uart_top.vhd) 
 
 export GHDL_PREFIX=/usr/lib/ghdl/mcode/vhdl
 
@@ -35,7 +35,7 @@ sim_tx: $(SRCS) $(TB_DIR)/$(TBtx).vhd
 sim_top: $(SRCS) $(TB_DIR)/$(TBtop).vhd
 	ghdl $(VHDLFLAGS) --workdir=$(SIM_DIR) $(SRCS) $(TB_DIR)/$(TBtop).vhd
 	ghdl -e --workdir=$(SIM_DIR) --std=08 $(TBtop) 
-	ghdl -r --workdir=$(SIM_DIR) --std=08 $(TBtop) --wave=$(SIM_DIR)/uart_top_tb.ghw --stop-time=200us
+	ghdl -r --workdir=$(SIM_DIR) --std=08 $(TBtop) --wave=$(SIM_DIR)/uart_top_tb.ghw --stop-time=210us
 	gtkwave $(SIM_DIR)/uart_top_tb.ghw
 
 clean:
