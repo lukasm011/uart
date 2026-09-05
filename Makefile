@@ -31,7 +31,7 @@ sim_tx: $(SRCS) $(TB_DIR)/$(TBtx).vhd
 	ghdl -e --workdir=$(SIM_DIR) --std=08 $(TBtx) 
 	ghdl -r --workdir=$(SIM_DIR) --std=08 $(TBtx) --wave=$(SIM_DIR)/uart_tx_tb.ghw --stop-time=300us
 	gtkwave $(SIM_DIR)/uart_tx_tb.ghw
-
+	
 sim_top: $(SRCS) $(TB_DIR)/$(TBtop).vhd
 	ghdl $(VHDLFLAGS) --workdir=$(SIM_DIR) $(SRCS) $(TB_DIR)/$(TBtop).vhd
 	ghdl -e --workdir=$(SIM_DIR) --std=08 $(TBtop) 

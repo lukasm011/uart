@@ -6,21 +6,23 @@ entity uart_top_tb is
     end;
 
 architecture sim of uart_top_tb is 
-    signal rst, sel : std_logic := '1';
+    signal rst, rst_rx_i, sel : std_logic := '1';
     signal data_in_ser, data_out_ser : std_logic_vector(7 downto 0);
-    signal clk, trig, read, write : std_logic := '0';
+    signal clk, read, write : std_logic := '0';
     signal error_out, tx_out, full_rx_out, full_tx_out, empty : std_logic;
     begin
         dut: entity work.uart_top
             generic map(
                 CLK_FREQ => 100e6,
-                WIDTH    => 8
+                WIDTH    => 8,
+                DEPTH => 8
             )
             port map(
                 RX_I         => tx_out,
                 DATA_IN_SER  => DATA_IN_SER,
                 CLK          => CLK,
                 RST          => RST,
+                RST_RX_I     => RST_RX_I,
                 SEL          => SEL,
                 READ         => READ,
                 WRITE        => WRITE,
