@@ -22,7 +22,7 @@ entity axi_slave is
         aw_ready: out std_logic;
         --// WRITE DATA CHANNEL
         w_data: in std_logic_vector(31 downto 0);
-        w_strb: in std_logic_vector(3 downto 0);
+        --w_strb: in std_logic_vector(3 downto 0);
         w_valid: in std_logic;
         w_ready: out std_logic;
         --// WRITE RESPONSE CHANNEL

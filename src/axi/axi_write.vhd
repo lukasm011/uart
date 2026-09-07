@@ -49,7 +49,7 @@ architecture synth of axi_write is
 begin
 
     next_state_proc:process(all) begin
-        if(rst) then
+        if(not rst) then
             next_state <= IDLE;
         else
             next_state <= state;
@@ -83,7 +83,9 @@ begin
             uart_rst <= next_uart_rst;
             state <= next_state;
             addr <= next_addr;
-            registers <= next_registers;
+            for i in 0 to 3 loop
+                registers(i) <= next_registers(i);
+            end loop;
             uart_d_in_ser <= next_uart_d_in_ser;
         end if;
     end process;
@@ -96,9 +98,9 @@ begin
         next_w_ready <= w_ready;
         next_rw_resp <= rw_resp;
         next_rw_valid <= rw_valid;
-        next_uart_write <= uart_write;
+        next_uart_write <= '0';
         next_uart_sel <= uart_sel;
-        next_uart_rst <= uart_rst;
+        next_uart_rst <= '1';
         next_addr <= addr;
         next_registers <= registers;
         next_uart_d_in_ser <= uart_d_in_ser;
@@ -109,57 +111,61 @@ begin
                     next_addr <= unsigned(aw_addr(3 downto 2));
                 end if;
             when DECODE =>
+                next_aw_ready <= '0';
                 if(w_valid) then
                     next_w_ready <= '1';
                     case addr is
-                        when 0 =>
+                        when to_unsigned(0, 2) =>
                             --RX data out
                             --// READ ONLY
-                        when 1 =>
+                        when to_unsigned(1, 2) =>
                             --TX data in
                             --// WRITE ONLY
-                            next_registers(integer(addr)) <= w_data(WIDTH - 1 downto 0);
-                        when 2 =>
+                            next_registers(to_integer(addr)) <= w_data(WIDTH - 1 downto 0);
+                        when to_unsigned(2, 2) =>
                             --Control
                             --// WRITE ONLY
-                            next_registers(integer(addr)) <= w_data(WIDTH - 1 downto 0);
-                        when 3 =>
+                            next_registers(to_integer(addr)) <= w_data(WIDTH - 1 downto 0);
+                        when to_unsigned(3, 2) =>
                             --Status
                             --// READ ONLY
+                        when others =>
                     end case;
                 end if;
             when DATA =>
                 next_rw_valid <= '1';
+                next_w_ready <= '0';
                 case addr is
-                    when 0 =>
+                    when to_unsigned(0, 2) =>
                         --RX data out
                         --//READ ONLY
                         next_rw_resp <= "11";
                         --//DECERR
-                    when 1 =>
+                    when to_unsigned(1, 2) =>
                         --TX data in
                         --//WRITE ONLY
                         next_rw_resp <= "10" when uart_full_tx else "00";
                         --//SLVERR when TX full, else OKAY
                         next_uart_write <= '1';
-                        next_uart_d_in_ser <= registers(integer(addr));
-                    when 2 =>
+                        next_uart_d_in_ser <= registers(to_integer(addr));
+                    when to_unsigned(2, 2) =>
                         --Control
                         --//WRITE ONLY
                         next_rw_resp <= "00"; 
                         --//OKAY
-                        next_uart_rst <= registers(integer(addr))(0);
-                        next_uart_sel <= registers(integer(addr))(0);
-                    when 3 =>
+                        next_uart_rst <= registers(to_integer(addr))(0);
+                        next_uart_sel <= registers(to_integer(addr))(0);
+                    when to_unsigned(3, 2) =>
                         --Status
                         --//READ ONLY
                         next_rw_resp <= "11";
                         --//DECERR
+                    when others =>
                 end case;
             when RESP =>
                 next_rw_valid <= not rw_ready;
         end case;
-        if(rst) then
+        if(not rst) then
             next_aw_ready <= '0';
             next_w_ready <= '0';
             next_rw_resp <= "00";
@@ -169,9 +175,9 @@ begin
             next_uart_rst <= '0';
             next_addr <= "00";
             for i in 0 to 3 loop
-                registers(i) <= (others => '0');
+                next_registers(i) <= (others => '0');
             end loop;
-            next_uart_d_in_ser;
+            next_uart_d_in_ser <= (others => '0');
         end if;
     end process;
 end;

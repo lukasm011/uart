@@ -11,27 +11,27 @@ entity axi_top is
     port(clk: in std_logic;
         rst: in std_logic;
         --// READ ADDRESS CHANNEL
-        ar_addr: in std_logic_vector(31 downto 0);
-        ar_valid: in std_logic;
-        ar_ready: out std_logic;
+        s_axi_araddr: in std_logic_vector(31 downto 0);
+        s_axi_arvalid: in std_logic;
+        s_axi_arready: out std_logic;
         --// READ DATA CHANNEL
-        r_data: out std_logic_vector(31 downto 0);
-        r_resp: out std_logic_vector(1 downto 0);
-        r_valid: out std_logic;
-        r_ready: in std_logic;
+        s_axi_rdata: out std_logic_vector(31 downto 0);
+        s_axi_rresp: out std_logic_vector(1 downto 0);
+        s_axi_rvalid: out std_logic;
+        s_axi_rready: in std_logic;
         --// WRITE ADDRESS CHANNEL
-        aw_addr: in std_logic_vector(31 downto 0);
-        aw_valid: in std_logic;
-        aw_ready: out std_logic;
+        s_axi_awaddr: in std_logic_vector(31 downto 0);
+        s_axi_awvalid: in std_logic;
+        s_axi_awready: out std_logic;
         --// WRITE DATA CHANNEL
-        w_data: in std_logic_vector(31 downto 0);
-        w_strb: in std_logic_vector(3 downto 0);
-        w_valid: in std_logic;
-        w_ready: out std_logic;
+        s_axi_wdata: in std_logic_vector(31 downto 0);
+        --s_axi_wstrb: in std_logic_vector(3 downto 0);
+        s_axi_wvalid: in std_logic;
+        s_axi_wready: out std_logic;
         --// WRITE RESPONSE CHANNEL
-        rw_resp: out std_logic_vector(1 downto 0);
-        rw_valid: out std_logic;
-        rw_ready: in std_logic;
+        s_axi_bresp: out std_logic_vector(1 downto 0);
+        s_axi_bvalid: out std_logic;
+        s_axi_bready: in std_logic;
         --// UART MODULE INTERFACE
         tx_o : out std_logic;
         rx_i : in std_logic
@@ -50,23 +50,23 @@ begin
         port map(
             clk            => clk,
             rst            => rst,
-            ar_addr        => ar_addr,
-            ar_valid       => ar_valid,
-            ar_ready       => ar_ready,
-            r_data         => r_data,
-            r_resp         => r_resp,
-            r_valid        => r_valid,
-            r_ready        => r_ready,
-            aw_addr        => aw_addr,
-            aw_valid       => aw_valid,
-            aw_ready       => aw_ready,
-            w_data         => w_data,
-            w_strb         => w_strb,
-            w_valid        => w_valid,
-            w_ready        => w_ready,
-            rw_resp        => rw_resp,
-            rw_valid       => rw_valid,
-            rw_ready       => rw_ready,
+            ar_addr        => s_axi_araddr,
+            ar_valid       => s_axi_arvalid,
+            ar_ready       => s_axi_arready,
+            r_data         => s_axi_rdata,
+            r_resp         => s_axi_rresp,
+            r_valid        => s_axi_rvalid,
+            r_ready        => s_axi_rready,
+            aw_addr        => s_axi_awaddr,
+            aw_valid       => s_axi_awvalid,
+            aw_ready       => s_axi_awready,
+            w_data         => s_axi_wdata,
+            --w_strb         => s_axi_wstrb,
+            w_valid        => s_axi_wvalid,
+            w_ready        => s_axi_wready,
+            rw_resp        => s_axi_bresp,
+            rw_valid       => s_axi_bvalid,
+            rw_ready       => s_axi_bready,
             uart_write     => uart_write,
             uart_read      => uart_read,
             uart_d_out_ser => uart_d_out_ser,

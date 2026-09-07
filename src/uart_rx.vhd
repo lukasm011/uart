@@ -21,7 +21,7 @@ architecture synth of uart_rx is
     -- Character used for synchronization is 'U'
     --//
     --Designed for baudrates above 4800 baud. 
-    constant counter_width : integer := bits(CLK_FREQ/4800 - 1);
+    constant counter_width : integer := bits(3 * (CLK_FREQ/4800) / 2 - 1);
     signal CPB, NEXT_CPB : unsigned(counter_width-1 downto 0);
     --worst case is largest oversampling rate with rate of 4800baud
     constant bit_counter_width : integer := bits(WIDTH);
@@ -92,7 +92,7 @@ architecture synth of uart_rx is
                         next_state <= STOP_BIT;
                     end if;
                 when STOP_BIT =>
-                    if(counter = CPB-1) then
+                    if(counter = CPB + CPB / 2 - 1) then
                         next_state <= IDLE;
                     end if;
             end case;
@@ -112,7 +112,7 @@ architecture synth of uart_rx is
         end process;
         
         datapath:process(all) begin
-            if(rst = '0') then
+            if(not rst) then
                 --//
                 -- on reset, set all values to 0
                 --//
@@ -135,7 +135,7 @@ architecture synth of uart_rx is
             case state is
                 when DETECT_IDLE =>
                 when DETECT_START =>
-                    if(d_in = '1' and d_in_last = '0') then
+                    if(d_in and not d_in_last) then
                         --d_in reasserted, start of data bit
                         --//
                         -- CPB set to the number of clock cycles
@@ -172,7 +172,7 @@ architecture synth of uart_rx is
                         next_counter <= counter + 1;
                     end if;
                 when RECEIVING =>
-                    if(counter = CPB-1) then
+                    if(counter = CPB - 1) then
                         --reached middle of data bit
                         next_counter <= TO_UNSIGNED(0, counter_width);
                         next_bit_counter <= bit_counter + 1;
@@ -182,17 +182,19 @@ architecture synth of uart_rx is
                         next_counter <= counter + 1;
                     end if;
                 when STOP_BIT =>
-                    if(counter = CPB-1) then
+                    if(counter = CPB - 1) then
+                        next_counter <= counter + 1;
                         --reached middle of stop bit
-                        next_counter <= TO_UNSIGNED(0, counter_width);
-                        next_bit_counter <= TO_UNSIGNED(0, bit_counter_width);
-                        if(d_in = '1') then
+                        if(d_in) then
                             --change output
                             write <= '1';
                         else
                             --invalid value during stop sequence
                             next_error <= '1';
                         end if;
+                    elsif(counter = CPB + CPB / 2 - 1) then
+                        next_counter <= TO_UNSIGNED(0, counter_width);
+                        next_bit_counter <= TO_UNSIGNED(0, bit_counter_width);
                     else
                         next_counter <= counter + 1;
                     end if;
@@ -212,7 +214,7 @@ architecture synth of uart_rx is
     synchronizer:process(clk) begin
         if(rising_edge(clk)) then
             --default value
-            if(rst = '0') then
+            if(not rst) then
                 d_in_filter <= (others => '1');
                 d_in_sync <= (others => '1');
                 d_in <= '1';

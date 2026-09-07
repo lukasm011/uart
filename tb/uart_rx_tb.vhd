@@ -7,7 +7,6 @@ entity uart_rx_tb is
 
 architecture rx_test of uart_rx_tb is
     signal clk_tb, rst_tb, read : std_logic := '0';
-    signal sel : std_logic := '1';
     signal d_in_tb : std_logic := '1';
     signal d_out_tb : std_logic_vector(7 downto 0);
     signal error_out, full_out, empty_out : std_logic;
