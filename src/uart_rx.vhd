@@ -192,7 +192,7 @@ architecture synth of uart_rx is
                             --invalid value during stop sequence
                             next_error <= '1';
                         end if;
-                    elsif(counter = CPB + CPB / 2 - 1) then
+                    elsif(counter = CPB + (CPB / 2) - 1) then
                         next_counter <= TO_UNSIGNED(0, counter_width);
                         next_bit_counter <= TO_UNSIGNED(0, bit_counter_width);
                     else

@@ -1,5 +1,5 @@
 import cocotb
-from cocotb.triggers import Timer, RisingEdge, ClockCycles
+from cocotb.triggers import Timer, RisingEdge, ClockCycles, gather
 from cocotb.clock import Clock
 from cocotbext.axi import AxiLiteMaster, AxiLiteBus
 
@@ -21,9 +21,11 @@ async def my_test(dut):
     await axi_master.write(0x04, b'U')
     await Timer(10*bit_time_slow, unit="ns") #Transmission takes place during this time
     await axi_master.write(0x04, b'T')
-    await Timer(10*bit_time_slow, unit="ns")
+    await gather(axi_master.write(0x04, b'S'), axi_master.read(0x0C, 1));
+    await Timer(20*bit_time_slow, unit="ns")
     a = await axi_master.read(0x00, 4)
     assert a.data[0] == 0x55, "Error!, got {}".format(a.data[0])
     a = await axi_master.read(0x00, 4)
     assert a.data[0] == 0x54, "Error!, got {}".format(a.data[0])
-
+    a = await axi_master.read(0x00, 4)
+    assert a.data[0] == 0x53, "Error!, got {}".format(a.data[0])

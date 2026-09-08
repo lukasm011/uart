@@ -101,6 +101,7 @@ begin
                     when to_unsigned(0, 2) =>
                         --RX data out
                         uart_read <= '1';
+                        next_r_resp <= "10" when uart_empty_rx else "00";
                         --retreive from FIFO
                     when to_unsigned(1, 2) =>
                         --TX data in
@@ -127,7 +128,6 @@ begin
                 --RX data out
                 next_r_data <= (31 downto WIDTH => '0') & uart_d_out_ser;
                 next_r_valid <= '1';
-                next_r_resp <= "10" when uart_empty_rx else "00";
             when DATA =>
                 next_r_valid <= not r_ready;
         end case;

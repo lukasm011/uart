@@ -154,7 +154,7 @@ begin
                         next_rw_resp <= "00"; 
                         --//OKAY
                         next_uart_rst <= registers(to_integer(addr))(0);
-                        next_uart_sel <= registers(to_integer(addr))(0);
+                        next_uart_sel <= registers(to_integer(addr))(1);
                     when to_unsigned(3, 2) =>
                         --Status
                         --//READ ONLY
