@@ -221,6 +221,6 @@ begin
     -- Misc.
     --//
     uart_d_in_ser <= data_reg;
-    w_ready <= w_ready_load and en_load;
+    w_ready <= w_ready_load and en_load; --TODO: Add similar system to other stages if necessary, to ensure that READY goes down as soon as module is disabled
     rw_valid      <= rw_valid_resp or rw_valid_load;
 end;
