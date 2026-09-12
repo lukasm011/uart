@@ -111,7 +111,7 @@ begin
                 if(r_valid) then
                     r_valid_load_next <= '1';
                     if(not r_ready) then
-                        -- Both valid and ready asserted, can transact
+                        -- Only r_valid valid, cannot transact
                         stall_load <= '1';
                     end if;
                 else

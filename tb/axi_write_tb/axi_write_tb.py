@@ -19,7 +19,7 @@ async def axi_write_test(dut):
     await ClockCycles(dut.clk, 2)
     dut.rst.value = 1
     # Set up busses
-    dut.aw_addr.value = 4
+    dut.aw_addr.value = 4 #TX data in
     dut.aw_valid.value = 0
     dut.w_data.value = 0x55
     dut.w_valid.value = 0
@@ -28,11 +28,14 @@ async def axi_write_test(dut):
     await RisingEdge(dut.clk)
     # Start address transmission
     dut.aw_valid.value = 1
-    await RisingEdge(dut.clk) # AW Bus handshake
-    dut.aw_addr.value = 8
+    #############################
+    await RisingEdge(dut.clk) 
+    # AW Bus handshake
     # No assertion of w_valid
     await wait_pre_sample()
-    assert dut.aw_ready.value == 0, "AW Transaction initiated despite stall!"
+    assert dut.aw_ready.value == 0, "AW_READY asserted despite stall!"
+    dut.aw_addr.value = 8 #CONTROL
+    #############################
     await RisingEdge(dut.clk)
     await wait_pre_sample()
     assert dut.addr_load.value == 1, "Loaded new address to LOAD when disabled!"
