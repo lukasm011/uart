@@ -39,8 +39,8 @@ architecture synth of axi_write is
     signal data_reg, data_reg_next                                                                                                : std_logic_vector(WIDTH - 1 downto 0);
     signal addr_load, addr_resp, addr_load_next, addr_resp_next                                                    : unsigned(1 downto 0);
     signal rw_resp_next : std_logic_vector(1 downto 0);
-    signal nop_decode, nop_load, stall_load, stall_resp, en_decode, en_load, en_resp, rw_valid_load, rw_valid_resp, w_ready_load : std_logic;
-    signal nop_decode_next, nop_load_next, rw_valid_load_next, aw_ready_next, w_ready_load_next, uart_write_next : std_logic;
+    signal nop_decode, nop_load, stall_load, stall_resp, en_decode, en_load, en_resp, rw_valid_load, rw_valid_resp, w_ready_load, aw_ready_decode : std_logic;
+    signal nop_decode_next, nop_load_next, rw_valid_load_next, aw_ready_decode_next, w_ready_load_next, uart_write_next : std_logic;
     signal uart_rst_next, rw_valid_resp_next, uart_sel_next : std_logic;
 begin
     --//
@@ -49,7 +49,7 @@ begin
     decode_clocked : process(clk)
     begin
         if (rising_edge(clk)) then
-            aw_ready <= aw_ready_next;
+            aw_ready_decode <= aw_ready_decode_next;
             nop_decode <= nop_decode_next;
             addr_load <= addr_load_next;
         end if;
@@ -60,14 +60,14 @@ begin
     decode_comb : process(all)
     begin
         if (not rst) then
-            aw_ready_next <= '1';
+            aw_ready_decode_next <= '1';
             nop_decode_next <= '1';
             addr_load_next <= (others => '0');
         else
             --//
             -- Default values
             --//
-            aw_ready_next <= aw_ready;
+            aw_ready_decode_next <= aw_ready;
             nop_decode_next <= '1';
             addr_load_next <= addr_load;
             if(en_decode) then
@@ -77,11 +77,11 @@ begin
                         addr_load_next <= unsigned(aw_addr(3 downto 2));
                         nop_decode_next <= '0';
                     else
-                        aw_ready_next <= '1';
+                        aw_ready_decode_next <= '1';
                     end if;
                 end if;
             else
-                aw_ready_next <= '0';
+                aw_ready_decode_next <= '0';
                 --//
                 -- Do not disable the next stage if current stage is disabled.
                 -- If the next stage is the one blocking, disabling it will cause an infinite loop. 
@@ -113,6 +113,7 @@ begin
             addr_resp_next <= addr_resp;
             w_ready_load_next <= w_ready_load;
             stall_load <= '0';
+            rw_resp_next <= rw_resp;
             if(en_load) then
                 if(w_valid) then
                     if(w_ready) then
@@ -149,6 +150,7 @@ begin
                 end if;
             else
                 --// Stage blocked, do not transact
+                nop_load_next <= '0' when stall_resp; --do not relay NOP to RESP if stalled
                 w_ready_load_next <= '0';
             end if;
         end if;
@@ -187,10 +189,14 @@ begin
             rw_valid_resp_next <= rw_valid_resp;
             if(en_resp) then
                 if(rw_valid) then
-                    if(rw_ready = '1' and addr_resp = 2) then
-                        --TODO: Check whether data_reg can be overwritten in case of a RESP stall
-                        uart_rst_next <= not data_reg(0);
-                        uart_sel_next <= data_reg(1);
+                    if(rw_ready) then
+                        rw_valid_resp_next <= '0';
+                        if(addr_resp = 2) then
+                            uart_rst_next <= not data_reg(0);
+                            uart_sel_next <= data_reg(1);
+                        end if;
+                    else
+                        stall_resp <= '1';
                     end if;
                 else
                     -- Set up valid data, stall for one cycle
@@ -207,9 +213,11 @@ begin
     -- RESP Clocked
     --//
     resp_clocked : process(clk) begin
-        uart_sel <= uart_sel_next;
-        uart_rst <= uart_rst_next;
-        rw_valid_resp <= rw_valid_resp_next;
+        if(rising_edge(clk)) then
+            uart_sel <= uart_sel_next;
+            uart_rst <= uart_rst_next;
+            rw_valid_resp <= rw_valid_resp_next;
+        end if;
     end process;
     --//
     -- ENABLE SIGNALS
@@ -220,6 +228,7 @@ begin
     --//
     -- Misc.
     --//
+    aw_ready <= aw_ready_decode and en_decode;
     uart_d_in_ser <= data_reg;
     w_ready <= w_ready_load and en_load; --TODO: Add similar system to other stages if necessary, to ensure that READY goes down as soon as module is disabled
     rw_valid      <= rw_valid_resp or rw_valid_load;

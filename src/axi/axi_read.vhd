@@ -26,11 +26,16 @@ entity axi_read is
 end;
 
 architecture synth of axi_read is
+    --//
+    -- REGISTER MAP
+    -- 0x00 <=> RX data out
+    -- 0x04 <=> TX data in
+    -- 0x08 <=> Control
+    -- 0x0C <=> Status
+    --//
     signal ar_ready_decode, ar_ready_decode_next, nop_decode, nop_decode_next, stall_load, en_decode, en_load : std_logic;
     signal r_valid_decode, r_valid_load, r_valid_decode_next, r_valid_load_next : std_logic;
-    signal read_reg, read_reg_next : std_logic_vector(WIDTH - 1 downto 0);
     signal addr_load, addr_load_next : unsigned(1 downto 0);
-    --signal r_data_next : std_logic_vector(31 downto 0);
 begin
     --//
     -- DECODE Combinational
@@ -104,13 +109,13 @@ begin
             r_resp <= "00";
             if(en_load) then
                 if(r_valid) then
+                    r_valid_load_next <= '1';
                     if(not r_ready) then
                         -- Both valid and ready asserted, can transact
                         stall_load <= '1';
                     end if;
                 else
                     stall_load <= '1';
-                    r_valid_load_next <= '1';
                 end if;
                 case addr_load is
                     when to_unsigned(0, 2) =>
