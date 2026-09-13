@@ -10,15 +10,20 @@ TBtop = uart_top_tb
 
 SRCS = $(addprefix $(SRC_DIR)/, uart_pkg.vhd fifo.vhd uart_rx.vhd uart_tx.vhd uart_top.vhd) 
 
+AXISRCS = $(addprefix $(SRC_DIR)/axi/, axi_read.vhd axi_write.vhd axi_slave.vhd axi_top.vhd)
+
 export GHDL_PREFIX=/usr/lib/ghdl/mcode/vhdl
 
 .PHONY: final sim_rx sim_tx sim_top clean
 
-final: $(SRCS) $(TOP_DIR)/uart_top_sevseg.vhd
+final: $(SRCS) $(AXISRCS) $(TOP_DIR)/uart_top_withaxi.vhd
+	yosys -m ghdl -p 'ghdl --std=08 $(SRCS) $(AXISRCS) top/uart_top_withaxi.vhd -e uart_top_withaxi; synth_gowin -json top/design.json'
+	# nextpnr-gowin --json top/design.json --write top/uart_pnr.json --device GW1NR-LV9QN88PC6/I5 --family GW1N-9C --cst top/tangnano9k.cst
+	# gowin_pack -d GW1N-9C -o top/uart.fs top/uart_pnr.json
+	# openFPGALoader -b tangnano9k top/uart.fs
+
+final_noaxi: $(SRCS) $(TOP_DIR)/uart_top_sevseg.vhd
 	yosys -m ghdl -p 'ghdl --std=08 $(SRCS) top/uart_top_sevseg.vhd -e uart_top_sevseg; synth_gowin -json top/design.json'
-	nextpnr-gowin --json top/design.json --write top/uart_pnr.json --device GW1NR-LV9QN88PC6/I5 --family GW1N-9C --cst top/tangnano9k.cst
-	gowin_pack -d GW1N-9C -o top/uart.fs top/uart_pnr.json
-	openFPGALoader -b tangnano9k top/uart.fs
 
 sim_rx: $(SRCS) $(TB_DIR)/$(TBrx).vhd
 	ghdl $(VHDLFLAGS) --workdir=$(SIM_DIR) $(SRCS) $(TB_DIR)/$(TBrx).vhd
