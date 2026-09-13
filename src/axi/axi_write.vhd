@@ -99,6 +99,7 @@ begin
             nop_load_next <= '1';
             w_ready_load_next <= '0';
             rw_valid_load_next <= '0';
+            rw_resp_next <= (others => '0');
             uart_write_next <= '0';
             addr_resp_next <= (others => '0');
             stall_load <= '0';
@@ -112,6 +113,7 @@ begin
             uart_write_next <= '0';
             addr_resp_next <= addr_resp;
             w_ready_load_next <= w_ready_load;
+            data_reg_next <= data_reg;
             stall_load <= '0';
             rw_resp_next <= rw_resp;
             if(en_load) then
