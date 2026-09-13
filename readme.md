@@ -58,6 +58,7 @@ Write only register. Contains the next configuration to be used.
 | 31 : 2 | RSVD | No Access   |
 | 1      | W    | SEL         |
 | 0      | W    | RST_RX      |
+
 _Note: The reset bit is applied only one clock cycle. Thus, it does not need to be reasserted manually._
 
 ### STATUS (0x0C) 
@@ -77,9 +78,13 @@ Upon start-up, the RST input must be deasserted (active low) for at least one ri
 ### RECEIVING DATA
 As the RX Subsystem uses an autobaud system, a handshake byte must be sent to determine the baudrate. This module uses the byte 'U'/0x55. Should a different baudrate be desired, the RX subsytem must be reset. This can be done in two ways:
 1. Global reset by deasserting RST
-2. RX reset by deasserting the RST_RX bit of the CONTROL register
+2. RX reset by asserting the RST_RX bit of the CONTROL register
 
-The minimum baudrate is 4800, the maximum tested is 1M.
+The minimum baudrate is 4800, the maximum tested is 1M. Received data is placed into the FIFO buffer. Each read cycle retreives one byte. Should the FIFO be empty, a read response of "10" (SLVERR) is returned. In case of a read request from a write only register, a read response of "11" (DECERR) is returned.
+
+### TRANSMITTING DATA
+The TX system supports two transmission modes. Fast (115200baud) and slow (9600baud). Selection can be done by setting the value of the SEL bit of the CONTROL register. Should a write be initiated while the FIFO is full, a response of "10" (SLVERR) is returned. In case of a write request to a read only register, a write response of "11" (DECERR) is returned. 
+
 
 # UART Subsystem
 ## GENERICS AND PORTS
@@ -113,9 +118,9 @@ _UART Subsystem block diagram_
 
 Both subsystems are implemented as FSMDs (Finite State Machines with Datapath) largely using a two process design. Additionally they consist of a FIFO buffer to enable multiple bytes to be written/received between outside interventions.
 
-# APPLICATION NOTES
+## APPLICATION NOTES
 On startup, the reset port must be asserted low for at least one rising edge of the clock. The module subsequently requires one more clock cycle to revert to the idle state, such that transmission and reception can start on the next rising edge.
-All further interfacing with the module is done via AXI4-Lite. 
+All further interfacing with the module is done via AXI4-Lite. Operation of specific pins as detailed below is done by the AXILite slave.
 
 
 ### TX subsytem
@@ -139,10 +144,13 @@ After a reset, the RX-subsytem transitions into the state "DETECT_IDLE".
 
 In this state, the subsystem will wait for the beginning of a transmission of the ASCII character 'U' in order to determine the baud rate. This baud rate will be utilized until the next reset is started. Thus, a reset and another handshake is necessary to change the baudrate of the receiver. The RX- and TX-subsystem's baud rates are indipendent and do not influence each other.
 
-## SYNCHRONIZATION AND FILTERING
+### SYNCHRONIZATION AND FILTERING
 
 The RX_I input of the RX-subsystem is used after being routed through a two stage synchronizer and a filter. Filtering is accomplished by using a counter to keep track of the value of the current bit relative to the previous values. The counter is incremented in case of a '1' and decremented in case of a '0'. The maximum value is 3 and a minimum value of 0. Thus, to change a stable value, the opposite must be applied for at least 3 clock cycles in order to toggle the signal. The influence of noise is therefore minimized, preventing false starts or errors.
 
 ## HARDWARE IMPLEMENTATION
 
 The module was tested on the Tang Nano 9K using an external seven-segment display. Thus, the received data can be evaluated. The toolchain used is yosys -> nextpnr -> gowin_pack -> openFPGALoader. The top level entity assume the seven segment display is of the common cathode type. The interal (27MHz) clock is utilized.
+
+## AXILite Slave implementation
+The AXILite slave used in the module consists of two subsystems. Namely, READ and WRITE. Both are implemented as pipelines. Thus, throughput is improved, and the module can accept both write and read instructions at a rate of 1 instruction every three clock cycles. The write subsystem's pipeline consists of three stages, namely DECODE, LOAD and RESP. The read subsystem's pipeline consists of two stages, DECODE and LOAD.
