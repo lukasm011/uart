@@ -39,8 +39,8 @@ architecture synth of axi_write is
     signal data_reg, data_reg_next                                                                                                : std_logic_vector(WIDTH - 1 downto 0);
     signal addr_load, addr_resp, addr_load_next, addr_resp_next                                                    : unsigned(1 downto 0);
     signal rw_resp_next : std_logic_vector(1 downto 0);
-    signal nop_decode, nop_load, stall_load, stall_resp, en_decode, en_load, en_resp, rw_valid_load, rw_valid_resp, w_ready_load, aw_ready_decode : std_logic;
-    signal nop_decode_next, nop_load_next, rw_valid_load_next, aw_ready_decode_next, w_ready_load_next, uart_write_next : std_logic;
+    signal nop_decode, nop_load, stall_load, stall_resp, en_decode, en_load, en_resp, rw_valid_load, rw_valid_resp, w_ready_load, aw_ready_decode, w_ready_decode : std_logic;
+    signal nop_decode_next, nop_load_next, rw_valid_load_next, aw_ready_decode_next, w_ready_load_next, w_ready_decode_next, uart_write_next : std_logic;
     signal uart_rst_next, rw_valid_resp_next, uart_sel_next : std_logic;
 begin
     --//
@@ -52,6 +52,7 @@ begin
             aw_ready_decode <= aw_ready_decode_next;
             nop_decode <= nop_decode_next;
             addr_load <= addr_load_next;
+            w_ready_decode <= w_ready_decode_next;
         end if;
     end process;
     --//
@@ -63,19 +64,22 @@ begin
             aw_ready_decode_next <= '1';
             nop_decode_next <= '1';
             addr_load_next <= (others => '0');
+            w_ready_decode_next <= '0';
         else
             --//
             -- Default values
             --//
+            w_ready_decode_next <= '0';
             aw_ready_decode_next <= aw_ready;
             nop_decode_next <= '1';
             addr_load_next <= addr_load;
             if(en_decode) then
                 if(aw_valid) then
                     if(aw_ready) then
-                        --// Both valid and ready active, can transact
+                        --// Both valid and ready asserted, can transact
                         addr_load_next <= unsigned(aw_addr(3 downto 2));
                         nop_decode_next <= '0';
+                        w_ready_decode_next <= '1';
                     else
                         aw_ready_decode_next <= '1';
                     end if;
@@ -112,7 +116,7 @@ begin
             rw_valid_load_next <= '0';
             uart_write_next <= '0';
             addr_resp_next <= addr_resp;
-            w_ready_load_next <= w_ready_load;
+            w_ready_load_next <= w_ready;
             data_reg_next <= data_reg;
             stall_load <= '0';
             rw_resp_next <= rw_resp;
@@ -123,6 +127,12 @@ begin
                         data_reg_next <= w_data(WIDTH - 1 downto 0);
                         nop_load_next <= '0';
                         rw_valid_load_next <= '1';
+
+                        --W_READY should be disabled unless there is
+                        --a new transmission right after.
+                        --(in which case w_ready_decode) will be set.
+                        w_ready_load_next <= '0';
+
                         addr_resp_next <= addr_load;
                         case addr_load is
                             when to_unsigned(1, 2) =>
@@ -188,7 +198,7 @@ begin
             uart_sel_next <= uart_sel;
             uart_rst_next <= '1';
             stall_resp <= '0';
-            rw_valid_resp_next <= rw_valid_resp;
+            rw_valid_resp_next <= rw_valid;
             if(en_resp) then
                 if(rw_valid) then
                     if(rw_ready) then
@@ -232,6 +242,6 @@ begin
     --//
     aw_ready <= aw_ready_decode and en_decode;
     uart_d_in_ser <= data_reg;
-    w_ready <= w_ready_load and en_load; --TODO: Add similar system to other stages if necessary, to ensure that READY goes down as soon as module is disabled
+    w_ready <= (w_ready_load or w_ready_decode) and en_load; --TODO: Add similar system to other stages if necessary, to ensure that READY goes down as soon as module is disabled
     rw_valid      <= rw_valid_resp or rw_valid_load;
 end;
