@@ -40,8 +40,9 @@ end;
 
 architecture synth of axi_top is
     signal uart_write, uart_read, uart_full_rx, uart_full_tx, uart_empty_rx,
-        uart_error, uart_sel, uart_rst : std_logic;
-    signal uart_d_out_ser, uart_d_in_ser : std_logic_vector(WIDTH - 1 downto 0); 
+        uart_error, uart_rst : std_logic;
+    signal uart_d_out_ser, uart_d_in_ser : std_logic_vector(WIDTH - 1 downto 0);
+    signal uart_sel : std_logic_vector(2 downto 0); 
 begin
     axi_slave:entity work.axi_slave
         generic map(

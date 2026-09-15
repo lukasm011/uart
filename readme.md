@@ -1,5 +1,5 @@
 # UART Module
-This UART module is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
+This UART module is able to transmit at baudrates between 9600baud and 921600baud.
 Reception is possible at baudrates from 4800baud and was tested up to 1Mbaud on the Tang Nano 9K board.
 The implementation consists of two subsystems, namely the UART subsystem and an AXI4-Lite wrapper.
 The UART subsystem itself contains an RX- and TX-subsystem each.
@@ -55,11 +55,23 @@ Write only register. Contains the next value to be written into the RX subsystem
 Write only register. Contains the next configuration to be used.
 | Bits   | Type | Description |
 | ------ | ---- | ----------- |
-| 31 : 2 | RSVD | No Access   |
-| 1      | W    | SEL         |
+| 31 : 4 | RSVD | No Access   |
+| 4  : 1 | W    | SEL         |
 | 0      | W    | RST_RX      |
 
 _Note: The reset bit is applied only one clock cycle. Thus, it does not need to be reasserted manually._
+
+#### SEL input meaning:
+| SEL Value | Baudrate |
+| --------- | -------- |
+| 000       | 9600     |
+| 001       | 19200    |
+| 010       | 38400    |
+| 011       | 57600    |
+| 100       | 115200   |
+| 101       | 230400   |
+| 110       | 460800   |
+| 111       | 921600   |
 
 ### STATUS (0x0C) 
 Read only register. Contains status of the UART subsystem.
@@ -83,7 +95,7 @@ As the RX Subsystem uses an autobaud system, a handshake byte must be sent to de
 The minimum baudrate is 4800, the maximum tested is 1M. Received data is placed into the FIFO buffer. Each read cycle retreives one byte. Should the FIFO be empty, a read response of "10" (SLVERR) is returned. In case of a read request from a write only register, a read response of "11" (DECERR) is returned.
 
 ### TRANSMITTING DATA
-The TX system supports two transmission modes. Fast (115200baud) and slow (9600baud). Selection can be done by setting the value of the SEL bit of the CONTROL register. Should a write be initiated while the FIFO is full, a response of "10" (SLVERR) is returned. In case of a write request to a read only register, a write response of "11" (DECERR) is returned. 
+The TX system supports eight transmission modes. The baudrates range from 9600 to 921600. Selection can be done by setting the value of the SEL bits of the CONTROL register. Should a write be initiated while the FIFO is full, a response of "10" (SLVERR) is returned. In case of a write request to a read only register, a write response of "11" (DECERR) is returned. 
 
 
 # UART Subsystem
@@ -102,7 +114,7 @@ The TX system supports two transmission modes. Fast (115200baud) and slow (9600b
 | DATA_IN_SER  | in        | std_logic_vector(WIDTH-1 downto 0) |
 | CLK          | in        | std_logic                          |
 | RST          | in        | std_logic                          |
-| SEL          | in        | std_logic                          |
+| SEL          | in        | std_logic_vector(2 downto 0)                          |
 | READ         | in        | std_logic                          |
 | WRITE        | in        | std_logic                          |
 | ERROR_O      | out       | std_logic                          |
@@ -126,7 +138,7 @@ All further interfacing with the module is done via AXI4-Lite. Operation of spec
 ### TX subsytem
 ![Reset sequence](docs/images/WaveformReset.png) 
 
-Selection between the two modes is possible using the sel port.
+Selection between the modes is possible using the sel port.
 Input on  SEL must be stable at least one rising edge before beginning transmission.
 The data to be transmitted is passed to the TX-subsystem via the DATA_IN_SER input and is first stored in the buffer. Transmission starts as soon as as soon as the buffer is not empty (e.g. on the second rising edge after reset). Further bytes can be written into the buffer by asserting WRITE high provided the FULL output is not asserted.  Transmission continues until the buffer is emptied.
 

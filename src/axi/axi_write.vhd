@@ -22,7 +22,7 @@ entity axi_write is
          --// UART MODULE INTERFACE
          uart_write    : out std_logic;
          uart_d_in_ser : out std_logic_vector(WIDTH - 1 downto 0);
-         uart_sel      : out std_logic;
+         uart_sel      : out std_logic_vector(2 downto 0);
          uart_rst      : out std_logic;
          uart_full_tx  : in  std_logic
         );
@@ -41,7 +41,8 @@ architecture synth of axi_write is
     signal rw_resp_next : std_logic_vector(1 downto 0);
     signal nop_decode, nop_load, stall_load, stall_resp, en_decode, en_load, en_resp, rw_valid_load, rw_valid_resp, w_ready_load, aw_ready_decode, w_ready_decode : std_logic;
     signal nop_decode_next, nop_load_next, rw_valid_load_next, aw_ready_decode_next, w_ready_load_next, w_ready_decode_next, uart_write_next : std_logic;
-    signal uart_rst_next, rw_valid_resp_next, uart_sel_next : std_logic;
+    signal uart_rst_next, rw_valid_resp_next : std_logic;
+    signal uart_sel_next : std_logic_vector(2 downto 0);
 begin
     --//
     -- DECODE CLOCKED
@@ -187,7 +188,7 @@ begin
     --//
     resp_comb : process(all) begin
         if(not rst) then
-            uart_sel_next <= '0';
+            uart_sel_next <= "000";
             uart_rst_next <= '1';
             rw_valid_resp_next <= '0';
             stall_resp <= '0';
@@ -205,7 +206,7 @@ begin
                         rw_valid_resp_next <= '0';
                         if(addr_resp = 2) then
                             uart_rst_next <= not data_reg(0);
-                            uart_sel_next <= data_reg(1);
+                            uart_sel_next <= data_reg(3 downto 1);
                         end if;
                     else
                         stall_resp <= '1';

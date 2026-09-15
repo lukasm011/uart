@@ -37,7 +37,7 @@ entity axi_slave is
         uart_full_tx: in std_logic;
         uart_empty_rx: in std_logic;
         uart_error: in std_logic;
-        uart_sel: out std_logic;
+        uart_sel: out std_logic_vector(2 downto 0);
         uart_rst: out std_logic
         );
 end;

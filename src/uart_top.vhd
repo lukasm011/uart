@@ -18,13 +18,13 @@ use ieee.numeric_std.all;
 
 
 entity uart_top is
-    generic(CLK_FREQ : integer := 27000000; WIDTH : integer := 8; DEPTH : integer := 8);
+    generic(CLK_FREQ : integer := 27_000_000; WIDTH : integer := 8; DEPTH : integer := 8);
     port(RX_I: in  std_logic;
     DATA_IN_SER: in std_logic_vector(WIDTH-1 downto 0);
     CLK: in std_logic;
     RST: in std_logic;
     RST_RX_I: in std_logic;
-    SEL: in std_logic;
+    SEL: in std_logic_vector(2 downto 0);
     READ: in std_logic;
     WRITE: in std_logic;
     ERROR_O: out std_logic;
