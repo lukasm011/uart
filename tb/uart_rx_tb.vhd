@@ -7,21 +7,27 @@ entity uart_rx_tb is
 
 architecture rx_test of uart_rx_tb is
     signal clk_tb, rst_tb, read : std_logic := '0';
-    signal sel : std_logic := '1';
     signal d_in_tb : std_logic := '1';
     signal d_out_tb : std_logic_vector(7 downto 0);
     signal error_out, full_out, empty_out : std_logic;
     begin
-        dut : entity work.uart_rx generic map(100e6, 8) 
-        port map(d_in_rx => d_in_tb, 
-        rst => rst_tb, 
-        clk => clk_tb, 
-        d_out => d_out_tb, 
-        error_out => error_out, 
-        read => read,
-        full_o => full_out,
-        empty_o => empty_out
-        );
+        dut : entity work.uart_rx
+            generic map(
+                CLK_FREQ => 100e6,
+                WIDTH    => 8,
+                DEPTH    => 8
+            )
+            port map(
+                d_in_rx   => d_in_tb,
+                rst       => rst_tb,
+                clk       => clk_tb,
+                d_out     => d_out_tb,
+                read      => read,
+                error_out => error_out,
+                full_o    => full_out,
+                empty_o   => empty_out
+            );
+        
         clk_tb <= not clk_tb after 5 ns;
         mainproc: process 
         begin

@@ -14,7 +14,8 @@ architecture tx_test of uart_tx_tb is
         dut: entity work.uart_tx
             generic map(
                 CLK_FREQ => 100e6,
-                WIDTH    => 8
+                WIDTH    => 8,
+                DEPTH => 8
             )
             port map(
                 d_i     => d_in,
@@ -29,7 +30,8 @@ architecture tx_test of uart_tx_tb is
         dut2: entity work.uart_rx
             generic map(
                 CLK_FREQ => 100e6,
-                WIDTH    => 8
+                WIDTH    => 8,
+                DEPTH => 8
             )
             port map(
                 d_in_rx   => d_out,

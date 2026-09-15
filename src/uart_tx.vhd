@@ -92,11 +92,12 @@ architecture synth of uart_tx is
                 --real value will be selected when state becomes idle
                 --//
                 next_baud_rate <= '0';
+                read <= '0';
                 NEXT_CPB <= TO_UNSIGNED(CLK_FREQ/ 9600, counter_width);
             else
-            --//
-            --default values
-            --//
+                --//
+                --default values
+                --//
                 next_baud_rate <= baud_rate;
                 NEXT_CPB <= CPB;
                 next_counter <= counter;

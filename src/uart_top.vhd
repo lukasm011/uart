@@ -23,6 +23,7 @@ entity uart_top is
     DATA_IN_SER: in std_logic_vector(WIDTH-1 downto 0);
     CLK: in std_logic;
     RST: in std_logic;
+    RST_RX_I: in std_logic;
     SEL: in std_logic;
     READ: in std_logic;
     WRITE: in std_logic;
@@ -36,6 +37,7 @@ entity uart_top is
 end entity;
 
 architecture top of uart_top is
+    signal rst_rx : std_logic;
     begin
         rx : entity work.uart_rx
             generic map(
@@ -45,7 +47,7 @@ architecture top of uart_top is
             )
             port map(
                 d_in_rx   => RX_I,
-                rst       => rst,
+                rst       => rst_rx,
                 clk       => CLK,
                 d_out     => data_out_ser,
                 read      => read,
@@ -69,5 +71,5 @@ architecture top of uart_top is
                 full_o  => FULL_TX_O,
                 d_o     => TX_O
             );
-            
+        rst_rx <= RST_RX_I and RST;
 end;
