@@ -155,5 +155,5 @@ begin
     -- Misc.
     --//
     ar_ready <= ar_ready_decode and en_decode;
-    r_valid <= r_valid_decode or r_valid_load;
+    r_valid <= (r_valid_decode or r_valid_load) and en_load;
 end;
