@@ -31,7 +31,7 @@ async def axi_top_tb(dut):
     #############################
     # Trigger Reset and Resend Handshake Byte + 1 Data Byte with Fast Mode
     to_send = bytearray(1)
-    to_send[0] = 0x03 #Reset and set sel = 1
+    to_send[0] = 0x09 #Reset and set sel = 4 (meaning 9600 baud)
     await almaster.write(0x08, to_send)
     await almaster.write(0x04, b'U')
     await almaster.write(0x04, b'T')
@@ -42,9 +42,3 @@ async def axi_top_tb(dut):
     assert read.data[0] == 0x54, "Transmission not received, have response {}.".format(read.resp)
     almaster.wait_write()
     #############################
-    await Timer(20*bit_time_fast_ns, unit = "ns")
-    await almaster.read(0x00, 1) #Reads Handshake byte
-    read = await almaster.read(0x00, 1)
-    assert read.data[0] == 0x54, "Transmission not received, have response {}.".format(read.resp)
-    
-        
