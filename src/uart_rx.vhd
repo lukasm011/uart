@@ -12,7 +12,8 @@ entity uart_rx is
     read : in std_logic;
     error_out : out std_logic;
     full_o : out std_logic;
-    empty_o : out std_logic
+    empty_o : out std_logic;
+    counter_o : out std_logic_vector(bits(DEPTH) - 1 downto 0)
     );
 end uart_rx;
 
@@ -47,7 +48,8 @@ architecture synth of uart_rx is
                 d_in    => buf,
                 d_out   => d_out,
                 full_o  => full_o,
-                empty_o => empty_o
+                empty_o => empty_o,
+                counter_o => counter_o
             );
         
 

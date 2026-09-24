@@ -21,7 +21,9 @@ entity axi_read is
         uart_full_rx: in std_logic;
         uart_full_tx: in std_logic;
         uart_empty_rx: in std_logic;
-        uart_error: in std_logic
+        uart_error: in std_logic;
+        uart_count_rx : in std_logic_vector(2 downto 0);
+        uart_count_tx : in std_logic_vector(2 downto 0)
         );
 end;
 
@@ -125,7 +127,7 @@ begin
                         --//SLVERR when RX empty, else OKAY 
                     when to_unsigned(3, 2) =>
                         --Status
-                        r_data <= (31 downto 4 => '0') & uart_full_rx & uart_full_tx & uart_empty_rx & uart_error;
+                        r_data <= (31 downto 10 => '0') & uart_count_tx & uart_count_rx & uart_full_rx & uart_full_tx & uart_empty_rx & uart_error;
                         r_resp <= "00";
                         --//OKAY
                     when others =>

@@ -38,7 +38,9 @@ entity axi_slave is
         uart_empty_rx: in std_logic;
         uart_error: in std_logic;
         uart_sel: out std_logic_vector(2 downto 0);
-        uart_rst: out std_logic
+        uart_rst: out std_logic;
+        uart_count_rx : in std_logic_vector(2 downto 0);
+        uart_count_tx : in std_logic_vector(2 downto 0)
         );
 end;
 
@@ -71,7 +73,9 @@ begin
             uart_full_rx   => uart_full_rx,
             uart_full_tx   => uart_full_tx,
             uart_empty_rx  => uart_empty_rx,
-            uart_error     => uart_error
+            uart_error     => uart_error,
+            uart_count_rx  => uart_count_rx,
+            uart_count_tx  => uart_count_tx
         );
     slave_write:entity work.axi_write
         generic map(
@@ -90,10 +94,10 @@ begin
             rw_valid         => rw_valid,
             rw_ready         => rw_ready,
             uart_write       => uart_write,
-            uart_d_in_ser => uart_d_in_ser,
+            uart_d_in_ser    => uart_d_in_ser,
             uart_sel         => uart_sel,
             uart_rst         => uart_rst,
-            uart_full_tx   => uart_full_tx
+            uart_full_tx     => uart_full_tx
         );
     
     

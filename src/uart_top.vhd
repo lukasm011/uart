@@ -1,11 +1,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.uart_pkg.all;
 
 --//
 -- MODULE DESCRIPTION
--- This UART subsystem is able to transmit at 9600baud (slow mode) and 115200baud (fast mode).
--- Selection between the two modes is possible using the sel port.
+-- This UART subsystem is able to transmit at various baud rates.
+-- Selection between the modes is possible using the sel port.
 -- It is also able to receive at baudrates ranging from 4800baud to 1Mbaud.
 -- The data to be transmitted is passed to the module via the DATA_IN_SER input and the trigger input must be
 -- switched to high for at least one clock cycle to begin the transmission.
@@ -32,7 +33,9 @@ entity uart_top is
     TX_O: out std_logic;
     FULL_RX_O: out std_logic;
     FULL_TX_O: out std_logic;
-    EMPTY_RX_O: out std_logic
+    EMPTY_RX_O: out std_logic;
+    COUNT_RX_O: out std_logic_vector(bits(DEPTH) - 1 downto 0);
+    COUNT_TX_O: out std_logic_vector(bits(DEPTH) - 1 downto 0)
     );
 end entity;
 
@@ -53,7 +56,8 @@ architecture top of uart_top is
                 read      => read,
                 error_out => error_o,
                 full_o    => FULL_RX_O,
-                empty_o   => EMPTY_RX_O
+                empty_o   => EMPTY_RX_O,
+                counter_o => COUNT_RX_O
             );
         
         tx: entity work.uart_tx
@@ -69,7 +73,8 @@ architecture top of uart_top is
                 sel_i   => sel,
                 write_i => write,
                 full_o  => FULL_TX_O,
-                d_o     => TX_O
+                d_o     => TX_O,
+                counter_o => COUNT_TX_O
             );
         rst_rx <= RST_RX_I and RST;
 end;

@@ -11,7 +11,8 @@ entity uart_tx is
     sel_i : in std_logic_vector(2 downto 0);
     write_i : in std_logic;
     full_o : out std_logic; 
-    d_o : out std_logic
+    d_o : out std_logic;
+    counter_o : out std_logic_vector(bits(DEPTH) - 1 downto 0)
     );
 end entity;
 
@@ -41,7 +42,8 @@ architecture synth of uart_tx is
                 d_in    => d_i,
                 d_out   => d_out,
                 full_o  => full_o,
-                empty_o => empty
+                empty_o => empty,
+                counter_o => counter_o
             );
         
 

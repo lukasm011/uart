@@ -77,7 +77,9 @@ _Note: The reset bit is applied only one clock cycle. Thus, it does not need to 
 Read only register. Contains status of the UART subsystem.
 | Bits   | Type | Description |
 | ------ | ---- | ----------- |
-| 31 : 4 | RSVD | No Access   |
+| 31 : 10| RSVD | No Access   |
+| 9  : 7 | R    | COUNT_TX    |
+| 6  : 4 | R    | COUNT_RX    |
 | 3      | R    | FULL_RX     |
 | 2      | R    | FULL_TX     |
 | 1      | R    | EMPTY_RX    |

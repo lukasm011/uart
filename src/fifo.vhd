@@ -12,6 +12,7 @@ entity fifo is
         d_in: in std_logic_vector(WIDTH-1 downto 0);
         d_out: out std_logic_vector(WIDTH-1 downto 0);
         full_o: out std_logic;
+        counter_o:out std_logic_vector(bits(SLOTS) - 1 downto 0);
         empty_o: out std_logic);
 end;
 
@@ -58,4 +59,5 @@ begin
     empty_out <= '1' when count = 0 else '0';
     full_o <= full_out;
     empty_o <= empty_out;
+    counter_o <= std_logic_vector(count);
 end;
