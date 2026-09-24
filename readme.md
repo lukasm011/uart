@@ -78,10 +78,10 @@ Read only register. Contains status of the UART subsystem.
 | Bits   | Type | Description |
 | ------ | ---- | ----------- |
 | 31 : 4 | RSVD | No Access   |
-| 3      | W    | FULL_RX     |
-| 2      | W    | FULL_TX     |
-| 1      | W    | EMPTY_RX    |
-| 0      | W    | ERROR       |
+| 3      | R    | FULL_RX     |
+| 2      | R    | FULL_TX     |
+| 1      | R    | EMPTY_RX    |
+| 0      | R    | ERROR       |
 ## OPERATION
 
 ### START-UP AND INITIAL OPERATION
