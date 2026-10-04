@@ -6,6 +6,7 @@ top/*.json
 top/*.fs
 *.json
 .vscode.sigasi/generated/
+.vscode/*
 tb/coco/
 *.ghw
 *.vcd
